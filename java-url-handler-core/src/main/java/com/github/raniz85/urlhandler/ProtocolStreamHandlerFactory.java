@@ -14,33 +14,26 @@
  *    limitations under the License.
  */
 
-group = "com.github.raniz85.urlhandler"
-version = "0.1.0.${System.currentTimeMillis()}"
+package com.github.raniz85.urlhandler;
 
-ext.spockVersion = "1.0-groovy-2.4"
-ext.groovyVersion = "2.4.3"
+import java.net.URLStreamHandler;
 
-subprojects {
+/**
+ * Interface for factories that can create {@link URLStreamHandler}s for one or more protocols.
+ * Created by raniz on 15/07/16.
+ */
+public interface ProtocolStreamHandlerFactory {
 
-    apply plugin: "java"
-    apply plugin: "groovy"
+    /**
+     * Return all supported protocols for this factory.
+     * @return
+     */
+    String[] getSupportedProtocols();
 
-    sourceCompatibility = "1.6"
-
-    version = project.rootProject.version
-    group = project.rootProject.group
-
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        testCompile \
-                    "org.codehaus.groovy:groovy-all:${groovyVersion}",
-                    "org.spockframework:spock-core:${spockVersion}"
-    }
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = "2.5"
+    /**
+     * Create a new {@link URLStreamHandler}
+     * @param protocol The protocol to create the handler for
+     * @return
+     */
+    URLStreamHandler createStreamHandler(String protocol);
 }
