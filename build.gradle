@@ -39,10 +39,11 @@ subprojects {
                     "org.codehaus.groovy:groovy-all:${groovyVersion}",
                     "org.spockframework:spock-core:${spockVersion}"
     }
-}
 
-project(":java-url-handler-core") {
-    dependencies {
+    test {
+        testLogging {
+            exceptionFormat = 'full'
+        }
     }
 }
 
