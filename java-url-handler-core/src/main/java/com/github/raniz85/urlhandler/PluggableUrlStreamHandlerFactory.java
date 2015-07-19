@@ -24,7 +24,9 @@ import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -158,7 +160,7 @@ public class PluggableUrlStreamHandlerFactory implements URLStreamHandlerFactory
 
     private final HashMap<String, ProtocolStreamHandlerFactory> factories;
 
-    private final Collection<URLStreamHandlerFactory> fallbacks;
+    private final List<URLStreamHandlerFactory> fallbacks;
 
     private final ReadWriteLock lock;
 
@@ -284,5 +286,13 @@ public class PluggableUrlStreamHandlerFactory implements URLStreamHandlerFactory
             lock.readLock().unlock();
         }
         return null;
+    }
+
+    public HashMap<String, ProtocolStreamHandlerFactory> getFactories() {
+        return new HashMap<String, ProtocolStreamHandlerFactory>(factories);
+    }
+
+    public List<URLStreamHandlerFactory> getFallbacks() {
+        return new ArrayList<URLStreamHandlerFactory>(fallbacks);
     }
 }
