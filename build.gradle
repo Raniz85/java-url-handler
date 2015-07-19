@@ -41,6 +41,11 @@ subprojects {
     }
 }
 
+project(":java-url-handler-core") {
+    dependencies {
+    }
+}
+
 task wrapper(type: Wrapper) {
     gradleVersion = "2.5"
 }

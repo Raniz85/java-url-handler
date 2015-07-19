@@ -215,6 +215,17 @@ public class PluggableUrlStreamHandlerFactory implements URLStreamHandlerFactory
     }
 
     /**
+     * Create a new factory with no protocol factories or fallbacks.
+     * Don't forget to add protocol factories and fallbacks with
+     * {@link PluggableUrlStreamHandlerFactory#addFactory(ProtocolStreamHandlerFactory)}
+     * and {@link PluggableUrlStreamHandlerFactory#addFallback(URLStreamHandlerFactory)}.
+     *
+     */
+    public PluggableUrlStreamHandlerFactory() {
+        this(null, null);
+    }
+
+    /**
      * Add a {@link ProtocolStreamHandlerFactory}.
      * @param factory
      */
