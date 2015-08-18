@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.github.raniz85.urlhandler;
+package se.raneland.urlhandler;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -24,7 +24,6 @@ import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;

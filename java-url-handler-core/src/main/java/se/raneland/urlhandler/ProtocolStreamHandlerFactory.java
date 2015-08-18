@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.github.raniz85.urlhandler;
+package se.raneland.urlhandler;
 
 import java.net.URLStreamHandler;
 
