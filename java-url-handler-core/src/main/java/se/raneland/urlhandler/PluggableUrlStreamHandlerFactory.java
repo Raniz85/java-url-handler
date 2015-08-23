@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -157,11 +158,9 @@ public class PluggableUrlStreamHandlerFactory implements URLStreamHandlerFactory
         return false;
     }
 
-    private final HashMap<String, ProtocolStreamHandlerFactory> factories;
+    private final ConcurrentHashMap<String, ProtocolStreamHandlerFactory> factories;
 
     private final List<URLStreamHandlerFactory> fallbacks;
-
-    private final ReadWriteLock lock;
 
     /**
      * Create a new factory with a set of fallbacks and no factories.
@@ -182,15 +181,25 @@ public class PluggableUrlStreamHandlerFactory implements URLStreamHandlerFactory
     }
 
     /**
+     * Create a new factory with no protocol factories or fallbacks.
+     * Don't forget to add protocol factories and fallbacks with
+     * {@link PluggableUrlStreamHandlerFactory#addFactory(ProtocolStreamHandlerFactory)}
+     * and {@link PluggableUrlStreamHandlerFactory#addFallback(URLStreamHandlerFactory)}.
+     *
+     */
+    public PluggableUrlStreamHandlerFactory() {
+        this(null, null);
+    }
+
+    /**
      * Create a new factory with a set of factories and fallbacks.
      *
      * @param factories The {@link ProtocolStreamHandlerFactory}s to use
      * @param fallbacks The {@link URLStreamHandlerFactory}s to fallback to when no {@link ProtocolStreamHandlerFactory} applies
      */
     public PluggableUrlStreamHandlerFactory(Collection<ProtocolStreamHandlerFactory> factories, Collection<URLStreamHandlerFactory> fallbacks) {
-        this.factories = new HashMap<String, ProtocolStreamHandlerFactory>();
+        this.factories = new ConcurrentHashMap<String, ProtocolStreamHandlerFactory>();
         this.fallbacks = new ArrayList<URLStreamHandlerFactory>();
-        this.lock = new ReentrantReadWriteLock();
 
         // Add all factories
         if(factories != null) {
@@ -216,17 +225,6 @@ public class PluggableUrlStreamHandlerFactory implements URLStreamHandlerFactory
     }
 
     /**
-     * Create a new factory with no protocol factories or fallbacks.
-     * Don't forget to add protocol factories and fallbacks with
-     * {@link PluggableUrlStreamHandlerFactory#addFactory(ProtocolStreamHandlerFactory)}
-     * and {@link PluggableUrlStreamHandlerFactory#addFallback(URLStreamHandlerFactory)}.
-     *
-     */
-    public PluggableUrlStreamHandlerFactory() {
-        this(null, null);
-    }
-
-    /**
      * Add a {@link ProtocolStreamHandlerFactory}.
      * @param factory
      */
@@ -234,13 +232,8 @@ public class PluggableUrlStreamHandlerFactory implements URLStreamHandlerFactory
         if(factory == null) {
             throw new IllegalArgumentException("Factory may not be null");
         }
-        lock.writeLock().lock();
-        try {
-            for (String protocol : factory.getSupportedProtocols()) {
-                this.factories.put(protocol.toLowerCase(), factory);
-            }
-        } finally {
-            lock.writeLock().unlock();
+        for (String protocol : factory.getSupportedProtocols()) {
+            this.factories.put(protocol.toLowerCase(), factory);
         }
     }
 
@@ -252,12 +245,7 @@ public class PluggableUrlStreamHandlerFactory implements URLStreamHandlerFactory
         if(fallback == null) {
             throw new IllegalArgumentException("Fallback may not be null");
         }
-        lock.writeLock().lock();
-        try {
-            this.fallbacks.add(fallback);
-        } finally {
-            lock.writeLock().unlock();
-        }
+        this.fallbacks.add(fallback);
     }
 
     /**
@@ -269,20 +257,15 @@ public class PluggableUrlStreamHandlerFactory implements URLStreamHandlerFactory
      * @return A stream handler or null if none could be created
      */
     public URLStreamHandler createURLStreamHandler(String protocol) {
-        lock.readLock().lock();;
-        try {
-            ProtocolStreamHandlerFactory factory = factories.get(protocol.toLowerCase());
-            if(factory != null) {
-                return factory.createStreamHandler(protocol.toLowerCase());
+        ProtocolStreamHandlerFactory factory = factories.get(protocol.toLowerCase());
+        if(factory != null) {
+            return factory.createStreamHandler(protocol.toLowerCase());
+        }
+        for(URLStreamHandlerFactory fallback : fallbacks) {
+            URLStreamHandler handler = fallback.createURLStreamHandler(protocol);
+            if(handler != null) {
+                return handler;
             }
-            for(URLStreamHandlerFactory fallback : fallbacks) {
-                URLStreamHandler handler = fallback.createURLStreamHandler(protocol);
-                if(handler != null) {
-                    return handler;
-                }
-            }
-        } finally {
-            lock.readLock().unlock();
         }
         return null;
     }
