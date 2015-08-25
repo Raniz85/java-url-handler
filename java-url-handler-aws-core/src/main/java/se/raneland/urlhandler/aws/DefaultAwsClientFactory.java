@@ -13,7 +13,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by raniz on 23/08/15.
+ * Default implementation of {@link AwsClientFactory}.
+ *
+ * Caches created clients and creates new clients using reflection.
+ *
+ * @author Raniz
+ * @since 1.0
  */
 public class DefaultAwsClientFactory<C extends AmazonWebServiceClient> implements AwsClientFactory<C> {
 
@@ -33,6 +38,9 @@ public class DefaultAwsClientFactory<C extends AmazonWebServiceClient> implement
 
     @Override
     public C create(ClientOptions options) throws ClientCreationException {
+        if(options == null) {
+            options = new ClientOptions();
+        }
         if(instances.containsKey(options)) {
             return instances.get(options);
         }
@@ -45,7 +53,7 @@ public class DefaultAwsClientFactory<C extends AmazonWebServiceClient> implement
             client.setRegion(options.getRegion());
         }
         instances.put(options, client);
-        return null;
+        return client;
     }
 
     protected C createClient(AWSCredentialsProvider credentialsProvider, ClientConfiguration configuration) throws ClientCreationException {
@@ -58,10 +66,10 @@ public class DefaultAwsClientFactory<C extends AmazonWebServiceClient> implement
     }
 
     protected AWSCredentialsProvider createCredentials(ClientOptions options) {
-        if(options.getProfile() != null) {
+        if (options.getProfile() != null) {
             return new ProfileCredentialsProvider(options.getProfile());
         }
-        if(options.getAccessKeyId() != null && options.getSecretAccessKey() !=  null) {
+        if (options.getAccessKeyId() != null && options.getSecretAccessKey() != null) {
             return new StaticCredentialsProvider(new BasicAWSCredentials(options.getAccessKeyId(), options.getSecretAccessKey()));
         }
         return createDefaultCredentials();
