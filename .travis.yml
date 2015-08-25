@@ -1,3 +1,8 @@
 language: java
 jdk:
     - oraclejdk8
+cache:
+    directories:
+        - $HOME/.gradle/wrapper
+        - $HOME/.gradle/caches/jars-1
+        - $HOME/.gradle/caches/2.6
