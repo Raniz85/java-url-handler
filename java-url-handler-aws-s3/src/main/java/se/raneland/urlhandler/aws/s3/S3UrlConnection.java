@@ -177,6 +177,6 @@ public class S3UrlConnection extends URLConnection {
     @Override
     public InputStream getInputStream() throws IOException {
         final S3Object object = s3.getObject(bucketName, keyName);
-        return object.getObjectContent();
+        return new S3ObjectInputStream(object);
     }
 }
