@@ -40,14 +40,15 @@ public class S3UrlConnection extends URLConnection {
     public S3UrlConnection(AwsClientFactory<? extends AmazonS3> clientFactory, URL url) throws ClientCreationException {
         super(url);
         this.clientFactory = clientFactory;
-        this.bucketName = url.getHost().split(".", 2)[0];
-        this.keyName = url.getPath();
+        this.bucketName = url.getHost().split("\\.", 2)[0];
+        this.keyName = url.getPath().replaceAll("^/+", "");
     }
 
     @Override
     public void connect() throws IOException {
         ClientOptions options = createClientOptions();
         this.s3 = clientFactory.create(options);
+        // TODO: Exception translation
         this.metadata = s3.getObjectMetadata(bucketName, keyName);
     }
 
@@ -59,12 +60,14 @@ public class S3UrlConnection extends URLConnection {
     protected ClientOptions createClientOptions() {
         ClientOptions options = new ClientOptions();
         String userInfo = url.getUserInfo();
-        if(userInfo.contains(":")) {
-            String[] parts = userInfo.split(":", 2);
-            options.setAccessKeyId(parts[0]);
-            options.setSecretAccessKey(parts[1]);
-        } else {
-            options.setProfile(userInfo);
+        if(userInfo != null) {
+            if (userInfo.contains(":")) {
+                String[] parts = userInfo.split(":", 2);
+                options.setAccessKeyId(parts[0]);
+                options.setSecretAccessKey(parts[1]);
+            } else {
+                options.setProfile(userInfo);
+            }
         }
         String host = url.getHost();
         if(host.contains(".")) {

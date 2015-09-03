@@ -21,6 +21,8 @@ public class S3UrlStreamHandler extends URLStreamHandler {
 
     @Override
     protected URLConnection openConnection(URL u) throws IOException {
-        return new S3UrlConnection(clientFactory, u);
+        S3UrlConnection connection = new S3UrlConnection(clientFactory, u);
+        connection.connect();
+        return connection;
     }
 }
