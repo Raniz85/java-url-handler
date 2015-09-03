@@ -85,8 +85,12 @@ subprojects {
     }
 
     bintray {
-        user = bintrayUser
-        key = bintrayApiKey
+        try {
+            user = bintrayUser
+            key = bintrayApiKey
+        } catch(MissingPropertyException e) {
+            // Ignore
+        }
 
         publications = ["java"]
         configurations = ["archives"]
