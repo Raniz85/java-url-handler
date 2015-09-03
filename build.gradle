@@ -14,16 +14,31 @@
  *    limitations under the License.
  */
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.3.1"
+    }
+}
+
+def siteUrl = "https://github.com/Raniz85/java-url-handler"
+def gitUrl = "https://github.com/Raniz85/java-url-handler.git"
 group = "com.github.raniz85.urlhandler"
-version = "0.1.0.${System.currentTimeMillis()}"
+version = "1.0.RELEASE"
 
 ext.spockVersion = "1.0-groovy-2.4"
 ext.groovyVersion = "2.4.3"
+ext.cglibVersion = "3.1"
+ext.objenesisVersion = "2.2"
 
 subprojects {
 
     apply plugin: "java"
     apply plugin: "groovy"
+    apply plugin: "maven-publish"
+    apply plugin: "com.jfrog.bintray"
 
     sourceCompatibility = "1.8"
 
@@ -47,7 +62,9 @@ subprojects {
         provided "org.projectlombok:lombok:1.16.4"
         testCompile \
                     "org.codehaus.groovy:groovy-all:${groovyVersion}",
-                    "org.spockframework:spock-core:${spockVersion}"
+                    "org.spockframework:spock-core:${spockVersion}",
+                    "cglib:cglib-nodep:${cglibVersion}",
+                    "org.objenesis:objenesis:${objenesisVersion}"
     }
 
     test {
@@ -55,6 +72,39 @@ subprojects {
             exceptionFormat = 'full'
         }
     }
+
+    publishing {
+        publications {
+            java(MavenPublication) {
+                from components.java
+                groupId "se.raneland.java-url-handler"
+                artifactId project.name
+                version project.version
+            }
+        }
+    }
+
+    bintray {
+        user = bintrayUser
+        key = bintrayApiKey
+
+        publications = ["java"]
+        configurations = ["archives"]
+        pkg {
+            repo = "maven"
+            // it is the name that appears in bintray when logged
+            name = "${project.name}"
+            websiteUrl = siteUrl
+            vcsUrl = gitUrl
+            licenses = ["Apache-2.0"]
+            publish = true
+            version {
+                name = project.version
+                    released = new Date()
+                    vcsTag = "0.1.0"
+            }        
+        }
+    } 
 }
 
 task wrapper(type: Wrapper) {
