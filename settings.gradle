@@ -1,4 +1,4 @@
 include \
-        "java-url-handler-core",
-        "java-url-handler-aws-core",
-        "java-url-handler-aws-s3"
+        "url-handler-core",
+        "url-handler-aws-core",
+        "url-handler-aws-s3"
