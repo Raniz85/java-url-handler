@@ -26,7 +26,11 @@ buildscript {
 def siteUrl = "https://github.com/Raniz85/java-url-handler"
 def gitUrl = "https://github.com/Raniz85/java-url-handler.git"
 group = "se.raneland.urlhandler"
-version = "1.0.RELEASE"
+
+def baseVersion = "1.1"
+
+// Development version
+version = "${baseVersion}.${System.currentTimeMillis()}"
 
 ext.spockVersion = "1.0-groovy-2.4"
 ext.groovyVersion = "2.4.3"
