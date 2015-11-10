@@ -2,15 +2,16 @@
 
 Library for managing URL handlers in Java
 
-Currently only URLs for Amazon S3 are supported on the format: `s3://bucket/path/to/key`.
+Currently only URLs for Amazon S3 are supported on the format: `s3://my.bucket/path/to/key`.
 
-Region or endpoint can be specified by adding it after the bucket like so: `s3://bucket.region-or.endpoint/path/to/key`.
+Region can be specified by adding it after the bucket like so: `s3://my.bucket.eu-central-1/path/to/key`. If thae name
+of your bucket ends with the name of a region you will have to append the region again:
+`s3://my.bucket.eu-central-1.eu-central-1/path/to/key`.
 
 Authorization will use the system default but can be overriden by specifying either profile name or key pair:
 
-* `s3://profile@bucket/path/to/key`
+* `s3://profile@my.bucket/path/to/key`
 * `s3://accessKey:secretKey@bucket/path/to/key`
-
 
 ## Usage:
 

@@ -5,6 +5,8 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import se.raneland.urlhandler.aws.AwsClientFactory;
 import se.raneland.urlhandler.aws.ClientCreationException;
 import se.raneland.urlhandler.aws.ClientOptions;
@@ -27,6 +29,17 @@ import java.util.*;
  */
 public class S3UrlConnection extends URLConnection {
 
+    private static StringBuilder pipeJoin(StringBuilder builder, CharSequence c) {
+        if(builder.length() > 0 && c.length() > 0) {
+            builder.append("|");
+        }
+        return builder.append(c);
+    }
+
+    private static final Pattern BUCKET_REGION_PATTERN = Pattern.compile("^(.+?)(?:\\.("
+            + Arrays.stream(Regions.values()).map(Regions::getName).collect(StringBuilder::new, S3UrlConnection::pipeJoin, S3UrlConnection::pipeJoin)
+            + "))?$");
+
     // Format dates according to the HTTP spec
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.RFC_1123_DATE_TIME;
 
@@ -40,7 +53,11 @@ public class S3UrlConnection extends URLConnection {
     public S3UrlConnection(AwsClientFactory<? extends AmazonS3> clientFactory, URL url) throws ClientCreationException {
         super(url);
         this.clientFactory = clientFactory;
-        this.bucketName = url.getHost().split("\\.", 2)[0];
+        Matcher matcher = BUCKET_REGION_PATTERN.matcher(url.getHost());
+        if(!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid bucket name: " + url.getHost());
+        }
+        this.bucketName = matcher.group(1);
         this.keyName = url.getPath().replaceAll("^/+", "");
     }
 
@@ -69,20 +86,13 @@ public class S3UrlConnection extends URLConnection {
                 options.setProfile(userInfo);
             }
         }
-        String host = url.getHost();
-        if(host.contains(".")) {
-            String regionOrEndpoint = host.split(".", 2)[1];
-            boolean isRegion = false;
-            for (Regions region : Regions.values()) {
-                if (region.getName().equalsIgnoreCase(regionOrEndpoint)) {
-                    options.setRegion(Region.getRegion(region));
-                    isRegion = true;
-                    break;
-                }
-            }
-            if (!isRegion) {
-                options.setEndpoint(regionOrEndpoint);
-            }
+        Matcher matcher = BUCKET_REGION_PATTERN.matcher(url.getHost());
+        if(!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid bucket name: " + url.getHost());
+        }
+        String region = matcher.group(2);
+        if(region != null && !region.isEmpty()) {
+            options.setRegion(Region.getRegion(Regions.fromName(region)));
         }
         return options;
     }
