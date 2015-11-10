@@ -30,7 +30,8 @@ group = "se.raneland.urlhandler"
 def baseVersion = "2.0"
 
 // Development version
-version = "${baseVersion}.${System.currentTimeMillis()}"
+//version = "${baseVersion}.${System.currentTimeMillis()}"
+version = "${baseVersion}.RELEASE"
 
 ext.spockVersion = "1.0-groovy-2.4"
 ext.groovyVersion = "2.4.3"
