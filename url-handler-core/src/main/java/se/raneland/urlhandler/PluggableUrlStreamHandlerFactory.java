@@ -123,7 +123,7 @@ public class PluggableUrlStreamHandlerFactory implements URLStreamHandlerFactory
             URL.setURLStreamHandlerFactory(factory);
             return true;
         } catch(Error e) {
-            if("factory already defined ".equals(e.getMessage())) {
+            if("factory already defined".equals(e.getMessage())) {
                 return false;
             }
             throw e;
