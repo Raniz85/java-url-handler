@@ -23,7 +23,7 @@ repositories {
 }
     
 dependencies {
-    compile "se.raneland.java-url-handler:java-url-handler-aws-s3:1.0.RELEASE"
+    compile "se.raneland.java-url-handler:java-url-handler-aws-s3:2.0.1.RELEASE"
 }
 ```
 
