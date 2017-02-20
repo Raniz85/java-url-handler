@@ -1,5 +1,5 @@
 dependencies {
     compile project(":url-handler-aws-core"),
             project(":url-handler-core"),
-            "com.amazonaws:aws-java-sdk-s3:1.+"
+            "com.amazonaws:aws-java-sdk-s3:1.11.93"
 }

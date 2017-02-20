@@ -1,4 +1,4 @@
 dependencies {
-    compile "com.amazonaws:aws-java-sdk-core:1.+"
-    testCompile "com.amazonaws:aws-java-sdk-simpledb:1.+"
+    compile "com.amazonaws:aws-java-sdk-core:1.11.93"
+    testCompile "com.amazonaws:aws-java-sdk-simpledb:1.11.93"
 }
